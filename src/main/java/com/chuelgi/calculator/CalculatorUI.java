@@ -5,8 +5,11 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.scene.input.KeyCode;
+
 
 public class CalculatorUI extends Application {
     private TextField inputField;
@@ -25,7 +28,7 @@ public class CalculatorUI extends Application {
         //text field
         inputField = new TextField();
         inputField.setEditable(false);
-        gridPane.add(inputField, 0, 0, 3,1);
+        gridPane.add(inputField, 0, 0, 4,1);
 
 
         Button btn0 = new Button("0");
@@ -70,19 +73,19 @@ public class CalculatorUI extends Application {
 
         Button subBtn = new Button("-");
         subBtn.getStyleClass().add("operation-button");
-        subBtn.setOnAction(e -> handleButtonInput("-"));
+        subBtn.setOnAction(e -> handleOperator("-"));
 
         Button addBtn = new Button("+");
         addBtn.getStyleClass().add("operation-button");
-        addBtn.setOnAction(e -> handleButtonInput("+"));
+        addBtn.setOnAction(e -> handleOperator("+"));
 
         Button divBtn = new Button("/");
         divBtn.getStyleClass().add("operation-button");
-        divBtn.setOnAction(e -> handleButtonInput("/"));
+        divBtn.setOnAction(e -> handleOperator("/"));
 
         Button mulBtn = new Button("*");
         mulBtn.getStyleClass().add("operation-button");
-        mulBtn.setOnAction(e -> handleButtonInput("*"));
+        mulBtn.setOnAction(e -> handleOperator("*"));
 
         Button clearBtn = new Button("c");
         clearBtn.getStyleClass().add("operation-button");
@@ -90,7 +93,7 @@ public class CalculatorUI extends Application {
 
         Button eqlBtn = new Button("=");
         eqlBtn.getStyleClass().add("equals-button");
-        eqlBtn.setOnAction(e-> handleOperation(String.valueOf(inputField.getText())));
+        eqlBtn.setOnAction(e-> handleOperation(inputField.getText()));
 
 
         gridPane.add(btn0, 0, 1);
@@ -111,53 +114,78 @@ public class CalculatorUI extends Application {
         gridPane.add(clearBtn, 2, 4);
         gridPane.add(eqlBtn, 3, 4);
 
+
+
         inputField.getStyleClass().add("input-field");
 
         gridPane.getStyleClass().add("grid-pane");
 
-        Scene scene = new Scene(gridPane, 250, 300);
+        Scene scene = new Scene(gridPane, 275, 350);
+        inputField.requestFocus();
+
+        //keyboard input
+
+        
         scene.getStylesheets().add(getClass().getResource("calculatorStyle.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
 
-    }
 
+
+    }
+    /**
+     * Handles appending to input field
+     * Appends numbers to the input field.
+     *
+     * @param val click on by user.
+     */
     private void handleButtonInput(String val){
         inputField.appendText(val);
     }
 
-    private void handleOperation(String val){
-        if(val.contains("+")){
-            String [] problem = val.split("\\+");
-            double a = Double.parseDouble(problem[0]);
-            double b = Double.parseDouble(problem[1]);
-            double res = cal.add(a,b);
-            inputField.setText(String.valueOf(res));
-        }
-        else if(val.contains("-")){
-            String [] problem = val.split("-");
-            double a = Double.parseDouble(problem[0]);
-            double b = Double.parseDouble(problem[1]);
-            double res = cal.sub(a,b);
-            inputField.setText(String.valueOf(res));
-        }
-        else if(val.contains("/")) {
-            String[] problem = val.split("/");
-            double a = Double.parseDouble(problem[0]);
-            double b = Double.parseDouble(problem[1]);
-            double res = cal.div(a, b);
-            inputField.setText(String.valueOf(res));
-        }
-        else{
-            String [] problem = val.split("*");
-            double a = Double.parseDouble(problem[0]);
-            double b = Double.parseDouble(problem[1]);
-            double res = cal.mul(a,b);
-            inputField.setText(String.valueOf(res));
-        }
-
+    /**
+     * Handles the button click for operators (+, -, *, /).
+     * Appends the operator surrounded by spaces to the input field.
+     *
+     * @param op The operator (+, -, *, /) clicked by the user.
+     */
+    private void handleOperator(String op){
+        inputField.appendText(" " + op+" ");
     }
 
+    /**
+     * Handles operation
+     * Computes operation using method from Calculator
+     *
+     * @param val The string created by the user.
+     */
+    private void handleOperation(String val){
+
+        inputField.setText(String.valueOf(cal.evaluateExpression(val)));
+    }
+    
+    private void handleKeyBoardInput(String key){
+        if(Character.isDigit(key.charAt(0))){
+            inputField.appendText(key);
+        }
+        else if(key.matches("[+\\-*/]")){
+            inputField.appendText(" "+ key+" ");
+
+        } else if (key.equals("=") || key.equals("\n")) {
+            handleOperation(inputField.getText());
+
+        } else if (key.equals("c") || key.equals("C")) {
+            handleClear();
+
+        }
+    }
+
+    /**
+     * Handles clearing the input field
+     *
+     *
+     *
+     */
     private void handleClear(){
         inputField.setText("");
     }
